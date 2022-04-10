@@ -6,7 +6,7 @@ import (
 	"text/template"
 
 	"github.com/TwiN/go-color"
-	QRCode "github.com/skip2/go-qrcode"
+	qrcode "github.com/skip2/go-qrcode"
 )
 
 func LoadHomeHTMLFile(w http.ResponseWriter) (*template.Template, error) {
@@ -24,7 +24,7 @@ func GetHTMLData(w http.ResponseWriter, r *http.Request) (map[string]interface{}
 	data["message"] = r.URL.Query().Get("message")
 
 	if data["message"] != "" {
-		data["bytes"], err = QRCode.Encode(data["message"].(string), QRCode.Medium, 256)
+		data["bytes"], err = qrcode.Encode(data["message"].(string), qrcode.Medium, 256)
 	}
 
 	if err != nil {
