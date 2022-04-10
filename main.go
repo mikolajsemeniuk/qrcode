@@ -6,19 +6,18 @@ import (
 	"text/template"
 
 	"github.com/TwiN/go-color"
-	qrcode "github.com/skip2/go-qrcode"
+	"github.com/skip2/go-qrcode"
 )
 
-func LoadHomeHTMLFile(w http.ResponseWriter) (*template.Template, error) {
+func LoadHomeHTMLFile(_ http.ResponseWriter) (*template.Template, error) {
 	view, err := template.ParseFiles("./templates/index.html")
 	if err != nil {
-		fmt.Fprintf(w, "%s", err.Error())
 		return nil, err
 	}
 	return view, nil
 }
 
-func GetHTMLData(w http.ResponseWriter, r *http.Request) (map[string]interface{}, error) {
+func GetHTMLData(_ http.ResponseWriter, r *http.Request) (map[string]interface{}, error) {
 	var err error
 	data := map[string]interface{}{"bytes": []byte{}, "message": ""}
 	data["message"] = r.URL.Query().Get("message")
@@ -28,7 +27,6 @@ func GetHTMLData(w http.ResponseWriter, r *http.Request) (map[string]interface{}
 	}
 
 	if err != nil {
-		fmt.Fprintf(w, "%s", err.Error())
 		return nil, err
 	}
 
@@ -36,19 +34,21 @@ func GetHTMLData(w http.ResponseWriter, r *http.Request) (map[string]interface{}
 }
 
 func Home(w http.ResponseWriter, r *http.Request) {
-	template, err := LoadHomeHTMLFile(w)
+	view, err := LoadHomeHTMLFile(w)
 	if err != nil {
+		_, _ = fmt.Fprintf(w, err.Error())
 		return
 	}
 
 	data, err := GetHTMLData(w, r)
 	if err != nil {
+		_, _ = fmt.Fprintf(w, err.Error())
 		return
 	}
 
-	err = template.Execute(w, data)
+	err = view.Execute(w, data)
 	if err != nil {
-		fmt.Fprintf(w, "%s", err.Error())
+		_, _ = fmt.Fprintf(w, err.Error())
 		return
 	}
 }
