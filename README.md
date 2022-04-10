@@ -1,0 +1,5 @@
+# qrcode
+Run
+```
+go run .
+```
