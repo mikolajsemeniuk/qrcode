@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin: 1em;
+        }
+        #Apply {
+            background: rgb(195, 59, 35);
+            border: 0px solid;
+            color: white;
+            border-radius: 5px;
+        }
+        #Reset {
+            background: rgb(195, 59, 35);
+            border: 0px solid;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        #Error {
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            Hi there
+        </h1>
+        <input id="Input" placeholder="text" />
+        {{ if eq (len .message) 0 }}
+            <div class="row">
+                <button id="Apply" onclick="generateQRCode()" disabled>
+                    Generate QR Code
+                </button>
+            </div>
+            <span id="Error">
+                Please provide message to generate QR Code
+            </span>
+        {{ else }}
+            <div class="row">
+                <button id="Apply" onclick="generateQRCode()">
+                    Generate QR Code
+                </button>
+                <a id="Reset" href="/">
+                    Reset QR Code
+                </a>
+            </div>
+            <span id="Error" style="display:none">
+                Please provide message to generate QR Code
+            </span>
+        {{ end }}
+        {{ if ne (len (index . "bytes")) 0 }}
+            <img id="ItemPreview" height="250" width="250" src="">
+        {{ else }}
+            <h1>
+                Type something you want to encode as QR code and hit button above
+            </h1>
+        {{ end }}
+    </div>
+</body>
+</html>
+
+<script type="text/javascript">
+    document.getElementById("Input").oninput = event => {
+        if (event.target.value === "") {
+            disableButtonAndSetError()
+            return
+        }
+        enableButtonAndClearError()
+    }
+
+    disableButtonAndSetError = () => {
+        document.getElementById("Error").style.display = "block"
+        document.getElementById("Apply").disabled = true
+    }
+
+    enableButtonAndClearError = () => {
+        document.getElementById("Apply").disabled = false
+        document.getElementById("Error").style.display = "none"
+    }
+
+    generateQRCode = () => {
+       const message = document.getElementById("Input").value
+       location.href = `index.html?message=${message}`
+    }
+
+    setQRCode = () => {
+        const image = '{{ index . "bytes" }}'
+        const trimmed = image.substr(1, image.length - 2)
+        const bytes = trimmed.split(' ').map(item => parseInt(item, 10))
+        document.getElementById("ItemPreview").src = "data:image/png;base64," + btoa(String.fromCharCode.apply(null, new Uint8Array(bytes)))
+    }
+
+    window.onload = () => {
+        const params = new URLSearchParams(window.location.search)
+        const queries = Object.fromEntries(params.entries())
+        if (queries.message !== undefined) {
+            setQRCode()
+            document.getElementById('Input').value = '{{ index . "message" }}'
+        }
+    }
+</script>
